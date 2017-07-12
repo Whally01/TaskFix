@@ -1,8 +1,10 @@
 package ru.dr.fix.mappers;
 
 import org.apache.ibatis.annotations.Insert;
+import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Options;
 import org.apache.ibatis.annotations.Select;
+import org.springframework.context.annotation.Scope;
 import ru.dr.fix.models.User;
 
 import java.util.List;

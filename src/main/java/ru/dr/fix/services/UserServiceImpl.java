@@ -18,11 +18,11 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public List<User> findAllUsers() {
-        return userMapper.findAllUsers();
+        return this.userMapper.findAllUsers();
     }
 
     @Override
     public void addUser(User user) {
-        userMapper.addUser(user);
+        this.userMapper.addUser(user);
     }
 }

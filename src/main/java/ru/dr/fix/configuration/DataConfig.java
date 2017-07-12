@@ -1,3 +1,4 @@
+
 package ru.dr.fix.configuration;
 
 import liquibase.integration.spring.SpringLiquibase;
@@ -25,7 +26,7 @@ import javax.sql.DataSource;
 @PropertySource("classpath:application.properties")
 public class DataConfig {
 
-    @Autowired
+  /*  @Autowired
     private Environment env;
 
     @Bean
@@ -59,5 +60,5 @@ public class DataConfig {
     @Bean
     public DataSourceTransactionManager txManager() {
         return new DataSourceTransactionManager(dataSource());
-    }
+    }*/
 }
