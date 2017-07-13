@@ -8,13 +8,15 @@ import liquibase.database.DatabaseFactory;
 import liquibase.database.jvm.JdbcConnection;
 import liquibase.exception.LiquibaseException;
 import liquibase.resource.ClassLoaderResourceAccessor;
-import org.apache.ibatis.io.Resources;
+import org.apache.ibatis.mapping.Environment;
+import org.apache.ibatis.session.Configuration;
 import org.apache.ibatis.session.SqlSession;
 import org.apache.ibatis.session.SqlSessionFactory;
 import org.apache.ibatis.session.SqlSessionFactoryBuilder;
+import org.apache.ibatis.transaction.TransactionFactory;
+import org.apache.ibatis.transaction.jdbc.JdbcTransactionFactory;
+import org.apache.ibatis.type.TypeAliasRegistry;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.context.annotation.Scope;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
@@ -36,13 +38,15 @@ import java.util.List;
  * Created by Dr.Raim on 02-Jul-17.
  */
 @RestController
-//@Scope("prototype")
 public class MainController {
     Connection connection;
     Liquibase liquibase;
+    Configuration configuration;
 
     @Autowired
     UserService userService;
+
+
 
     @PostMapping("/connect")
     public void connect(@ModelAttribute Conn conn) throws LiquibaseException, SQLException, ClassNotFoundException {
@@ -53,18 +57,38 @@ public class MainController {
         liquibase = new Liquibase("liquibase.xml", new ClassLoaderResourceAccessor(), database);
         liquibase.update(new Contexts(), new LabelExpression());
 
+     /**Adding mapper to configuration*/
+        DataSource dataSource = new org.apache.ibatis.datasource.pooled.PooledDataSource(
+                "org.postgresql.Driver", conn.getUrl(), conn.getUsername(), conn.getPassword());
+        TransactionFactory transactionFactory = new JdbcTransactionFactory();
+        Environment environment = new Environment("development", transactionFactory, dataSource);
+        configuration = new Configuration(environment);
+        TypeAliasRegistry aliases = configuration.getTypeAliasRegistry();
+        aliases.registerAlias("user", User.class);
+        configuration.addMapper(UserMapper.class);
     }
 
 
     @GetMapping("/users")
     public List<User> userList() {
-        //   System.out.println(this.hashCode());
-        return userService.findAllUsers();
+        SqlSessionFactory sqlSessionFactory = new SqlSessionFactoryBuilder().build(configuration);
+        SqlSession session = sqlSessionFactory.openSession();
+        UserMapper userMapper = session.getMapper(UserMapper.class);
+
+        List<User> users = userMapper.findAllUsers();
+        session.close();
+        return users; //userService.findAllUsers();
     }
 
     @PostMapping(value = "/add")
     public void addUser(@ModelAttribute User user) {
-        userService.addUser(user);
+        SqlSessionFactory sqlSessionFactory = new SqlSessionFactoryBuilder().build(configuration);
+        SqlSession session = sqlSessionFactory.openSession();
+        UserMapper userMapper = session.getMapper(UserMapper.class);
+
+        userMapper.addUser(user);
+        session.commit();
+        session.close();
     }
 
     @Transactional

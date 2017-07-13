@@ -20,13 +20,13 @@ import javax.sql.DataSource;
 /**
  * Created by Dr.Raim on 10-Jul-17.
  */
-@Configuration
+/*@Configuration
 @ComponentScan("ru.dr.fix")
 @MapperScan(basePackages = "ru.dr.fix.mappers")
 @PropertySource("classpath:application.properties")
 public class DataConfig {
 
-  /*  @Autowired
+    @Autowired
     private Environment env;
 
     @Bean
@@ -38,6 +38,7 @@ public class DataConfig {
         dataSource.setPassword(env.getProperty("spring.datasource.password"));
         return dataSource;
     }
+
 
     @Bean
     public SpringLiquibase liquibase() {
@@ -60,5 +61,5 @@ public class DataConfig {
     @Bean
     public DataSourceTransactionManager txManager() {
         return new DataSourceTransactionManager(dataSource());
-    }*/
-}
+    }
+}*/
